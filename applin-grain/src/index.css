@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-crema font-sans text-oliva-claro antialiased transition-colors duration-300
+           dark:bg-cafe dark:text-crema;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ocre dark:outline-lima;
+  }
+}

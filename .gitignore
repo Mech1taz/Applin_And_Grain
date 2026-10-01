@@ -1,0 +1,12 @@
+# Frontend
+applin-grain/node_modules/
+applin-grain/dist/
+
+# Backend Spring Boot
+ms-pedidos360-catalog/target/
+ms-pedidos360-catalog/.mvn/
+
+# IDEs
+.idea/
+.vscode/
+*.DS_Store
