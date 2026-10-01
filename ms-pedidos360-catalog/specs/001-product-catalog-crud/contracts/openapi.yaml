@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: ms-pedidos360-catalog - Product Catalog API
+  description: Microservicio de catálogo de Pedidos360 para gestión de productos y control de stock.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Entorno local de desarrollo
+paths:
+  /api/catalog/products:
+    get:
+      summary: Listar todos los productos del catálogo
+      operationId: listProducts
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Listado de productos obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+    post:
+      summary: Crear un nuevo producto (Requiere rol Admin)
+      operationId: createProduct
+      tags:
+        - Products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '201':
+          description: Producto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Datos de entrada inválidos o stock negativo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso no autorizado (solo permitido a rol Admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/catalog/products/{id}:
+    get:
+      summary: Obtener detalle de un producto por su ID
+      operationId: getProductById
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador numérico del producto
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Producto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Actualizar precio y/o stock de un producto (Requiere rol Admin)
+      description: Permite ajustar precio, stock o ambos campos de forma independiente o conjunta.
+      operationId: updateProduct
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador numérico del producto
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Datos inválidos, solicitud vacía o stock negativo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Acceso no autorizado (solo permitido a rol Admin)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ProductCreateRequest:
+      type: object
+      required:
+        - name
+        - price
+        - stock
+      properties:
+        name:
+          type: string
+          example: Café Colombiano Molido 500g
+        description:
+          type: string
+          nullable: true
+          example: Café premium de altura tostado medio
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 18.50
+        stock:
+          type: integer
+          minimum: 0
+          example: 45
+    ProductUpdateRequest:
+      type: object
+      description: Al menos uno de los dos campos debe ser enviado
+      properties:
+        price:
+          type: number
+          format: double
+          minimum: 0.01
+          example: 21.00
+        stock:
+          type: integer
+          minimum: 0
+          example: 60
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Café Colombiano Molido 500g
+        description:
+          type: string
+          example: Café premium de altura tostado medio
+        price:
+          type: number
+          format: double
+          example: 18.50
+        stock:
+          type: integer
+          example: 45
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: 2026-09-30T14:40:00Z
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: El stock no puede fijarse en un valor negativo
+        path:
+          type: string
+          example: /api/catalog/products/1

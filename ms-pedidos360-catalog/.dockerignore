@@ -1,0 +1,13 @@
+.git
+.gitignore
+.agents
+.specify
+specs/
+target/
+*.class
+*.jar
+.idea/
+.vscode/
+*.iml
+.env*
+docker-compose*.yml
